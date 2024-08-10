@@ -8,7 +8,7 @@ Based on the [Super Simple Time Tracker Plugin](https://github.com/Ellpeck/Obsid
 
 ### Monthly Statistics 
 This assumes you have a Time Tracker for each project note (or some similar unit). 
-It calcuates the total Duration for each day and shows a monthly overview, 
+It calcuates the total duration for each day and shows a monthly overview, 
 when put into a file that includes the year and the month. 
 
 #### Requirements 
