@@ -1,5 +1,7 @@
 # Obsidian Stuff 
 
+This repository contains some JS Snippets for the use in Obsidian. 
+
 ## Time Tracker Statistics 
 
 Based on the [Super Simple Time Tracker Plugin](https://github.com/Ellpeck/ObsidianSimpleTimeTracker) by [@Ellpeck](https://www.github.com/Ellpeck). 
