@@ -35,7 +35,7 @@ async function printWorkingTimeOfMonth(year, monthIndex) {
         dv.el("strong", monthDetails.name);
         dv.el("p", "");
 
-        // Concurrently get the working time of each day 
+        // Get the working time of each day 
         let promises = [];
         for (let i = 1; i <= monthDetails.days; i++) {
             let day = i < 10 ? "0" + i : i;
