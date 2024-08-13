@@ -4,17 +4,22 @@ This repository contains some JS Snippets for the use in Obsidian.
 
 ## Time Tracker Statistics 
 
-Based on the [Super Simple Time Tracker Plugin](https://github.com/Ellpeck/ObsidianSimpleTimeTracker) by [@Ellpeck](https://www.github.com/Ellpeck). 
+Based on the [Super Simple Time Tracker Plugin](https://github.com/Ellpeck/ObsidianSimpleTimeTracker) by [@Ellpeck](https://www.github.com/Ellpeck).
+
+#### Requirements 
+- Dataview with enabled JS 
+- Super Simple Time Tracker
+
+### Daily Statistics
+This assumes you have a Time Tracker for each project note (or some similar unit). 
+It calculates the total duration for each day and a daily breakdown for display in a daily note.
+The daily note file name needs to include the date in the format YYYY-MM-DD. 
 
 ### Monthly Statistics 
 This assumes you have a Time Tracker for each project note (or some similar unit). 
 It calcuates the total duration for each day and shows a monthly overview, 
 when put into a file that includes the year and the month. 
 
-#### Requirements 
-- Dataview with enabled JS 
-- Super Simple Time Tracker
-  
 #### Get Started 
 Create a file that includes the year and the month of which you want to display the statistics. 
 Put the content of the monthly-statistics.js file into a dataviewjs codeblock.
