@@ -1,3 +1,12 @@
+
+let startDayOfWeek = 1;
+
+let previousMonthDeviation = 0; // Set this to the deviation from the previous month in milliseconds
+
+let regularDaysOff = 8; 
+let daysOff = new Set([]); // Specify days off by their day part (e.g., "05" for the 5th)
+
+
 const monthLookupTable = [
     { name: "January", days: 31 },
     { name: "February", days: 28 },
@@ -14,14 +23,9 @@ const monthLookupTable = [
 ];
 
 const HOURS_PER_DAY_OFF = 8 * 60 * 60 * 1000; // 8 hours in milliseconds for a day off
-let previousMonthDeviation = 0; // Set this to the deviation from the previous month in milliseconds
-let regularDaysOff = 8; 
-let daysOff = new Set([]); // Specify days off by their day part (e.g., "05" for the 5th)
-
 let api = dv.app.plugins.plugins["simple-time-tracker"].api;
 let year = extractYear(dv.current().file.name);
 let monthIndex = extractMonth(dv.current().file.name);
-let startDayOfWeek = 1; //1 for Mo, ... 
 
 printWorkingTimeOfMonth(year, monthIndex, startDayOfWeek);
 
