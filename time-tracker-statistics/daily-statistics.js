@@ -1,7 +1,5 @@
-// Get the time tracker plugin API instance
 let api = dv.app.plugins.plugins["simple-time-tracker"].api;
 
-// Extract the Year, Month, and Day from the file name 
 let date = extractDate(dv.current().file.name);
 if (!date) {
     dv.paragraph("Error: Could not extract date from the file name.");
@@ -9,17 +7,13 @@ if (!date) {
     printWorkingTimeOfDay(date);
 }
 
-// Generates MarkDown with the totalDuration and a breakdown for the specific day
 async function printWorkingTimeOfDay(date) {
     try {
-        // Get the working time of the specific day 
         let workingTime = await getWorkingTimeOfDay(date);
 
-        // Process results to build rows
         let totalDuration = api.formatDuration(workingTime.totalDuration);
         let breakdownTable = printBreakdown(workingTime);
 
-        // Display the results
         dv.el("strong", `Total Duration: ${totalDuration}`);
         dv.el("p", ""); 
         dv.paragraph(breakdownTable);
@@ -30,7 +24,6 @@ async function printWorkingTimeOfDay(date) {
     }
 }
 
-// Returns total time and for each entry pageName, entryName, entryDurations
 async function getWorkingTimeOfDay(date) {
     try {
         let filteredEntries = [];
@@ -38,7 +31,6 @@ async function getWorkingTimeOfDay(date) {
         let entryNames = [];
         let entryDurations = [];
 
-        // Get all trackers of all pages in the vault and process their entries 
         for (let page of dv.pages()) {
             let trackers = await api.loadAllTrackers(page.file.path);
             for (let { tracker } of trackers) {
@@ -53,8 +45,6 @@ async function getWorkingTimeOfDay(date) {
             entryDurations: entryDurations
         };
 
-        // Recursively process the (nested) entries 
-        // and filter for those of the given day 
         function processEntries(entries, page, parentEntryName = '') {
             entries.forEach(entry => {
                 let entryLevelCondition = 
@@ -90,14 +80,11 @@ async function getWorkingTimeOfDay(date) {
     }
 }
 
-// Format the breakdown as a Markdown table
 function printBreakdown(workingTime) {
     let { pageNames, entryNames, entryDurations } = workingTime;
     
-    // Create the table header
     let table = `| Entry | Duration |\n| --- | --- |\n`;
     
-    // Populate the table with entries and their durations
     pageNames.forEach((pageName, i) => {
         table += `| **${pageName}-${entryNames[i]}** | ${api.formatDuration(entryDurations[i])} |\n`;
     });
@@ -105,7 +92,6 @@ function printBreakdown(workingTime) {
     return table;
 }
 
-// Use a regular expression to match the date portion (YYYY-MM-DD)
 function extractDate(inputString) {
     if (!inputString) {
         return null;
