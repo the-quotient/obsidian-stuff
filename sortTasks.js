@@ -1,61 +1,66 @@
+
 (async () => {
   const { vault, workspace } = this.app;
-  const debug = this.input?.debug ?? false;
-  if (debug) console.log("🔍 sortTasks.js starting…", { debug });
-
   const file = workspace.getActiveFile();
-  if (!file) {
-    if (debug) console.warn("No active file—aborting.");
-    return;
-  }
-  if (debug) console.log("Active file:", file.path);
+  let text = await vault.read(file);
 
-  const text = await vault.read(file);
-  // grab the ## tasks header + body
-  const regex = /(##\s*tasks.*\r?\n)([\s\S]*?)(?=\n##|\n$)/im;
-  const m = text.match(regex);
-  if (!m) {
-    if (debug) console.warn("No ## tasks section found.");
-    return;
-  }
-  const [, header, body] = m;
-  if (debug) console.log("Section header:", header.trim());
+  // Split into lines so we can splice in/out cleanly
+  const lines = text.split(/\r?\n/);
 
-  // extract only task lines
-  const lines = body
-    .split(/\r?\n/)
-    .filter(l => /^\s*-\s*\[[ xX]\]\s*/.test(l));
-  if (!lines.length) {
-    if (debug) console.log("No task lines under ## tasks.");
-    return;
-  }
-  if (debug) console.log(`Found tasks: ${lines.length}`);
+  // 1) Find start of "## Tasks"
+  const startIdx = lines.findIndex(l => /^##\s*Tasks\b/i.test(l));
+  if (startIdx === -1) return;
 
-  // partition into TODO vs normal
-  const todo = lines.filter(l => l.includes("TODO"));
-  const normal = lines.filter(l => !l.includes("TODO"));
-  if (debug) {
-    console.log(
-      "Normal count:", normal.length,
-      "TODO count:", todo.length
+  // 2) Find where the next "## " header is (or end of file)
+  let endIdx = lines
+    .slice(startIdx + 1)
+    .findIndex(l => /^##\s+/.test(l));
+  endIdx = endIdx === -1 ? lines.length : startIdx + 1 + endIdx;
+
+  // 3) Extract just that slice (everything *inside* the Tasks section)
+  const section = lines.slice(startIdx + 1, endIdx);
+
+  // 4) Pull out all checkbox lines
+  const taskPattern = /^\s*-\s*\[[ xX]\]\s*/;
+  const allTasks = section.filter(line => taskPattern.test(line));
+
+  // 5) Split case-sensitively on "TODO" immediately after the box:
+  const todoRe     = /^\s*-\s*\[[ xX]\]\s*TODO\b/;
+  const todoLines  = allTasks.filter(l => todoRe.test(l));
+  const quickLines = allTasks.filter(l => !todoRe.test(l));
+
+  // 6) Sort each so checked items ([x] or [X]) float to the top
+  const sortDoneFirst = arr =>
+    arr.sort((a, b) =>
+      (/\[x\]/.test(b) ? 1 : 0) - (/\[x\]/.test(a) ? 1 : 0)
     );
+  sortDoneFirst(quickLines);
+  sortDoneFirst(todoLines);
+
+  // 7) Build a brand-new section (no leftover headers, no dupes)
+  const rebuilt = [];
+  rebuilt.push(lines[startIdx]); // "## Tasks" header
+  rebuilt.push("");              // blank line
+
+  if (quickLines.length) {
+    rebuilt.push("### Quick Capture");
+    rebuilt.push(...quickLines);
+    rebuilt.push("");
+  }
+  if (todoLines.length) {
+    rebuilt.push("### TODO to be processed");
+    rebuilt.push(...todoLines);
+    rebuilt.push("");
   }
 
-  // rebuild the section with two ### subheadings
-  let newSection = header;
-  if (normal.length) {
-    newSection += "### Quick Capture\n"
-               + normal.join("\n")
-               + "\n\n";
-  }
-  if (todo.length) {
-    newSection += "### TODO to be processed\n"
-               + todo.join("\n")
-               + "\n";
-  }
+  // 8) Splice it back into the full file
+  const newLines = [
+    ...lines.slice(0, startIdx),
+    ...rebuilt,
+    ...lines.slice(endIdx),
+  ];
+  const newText = newLines.join("\n");
 
-  const newText = text.replace(regex, newSection);
   await vault.modify(file, newText);
-  if (debug) console.log("✅ sortTasks.js complete.");
 })();
 
