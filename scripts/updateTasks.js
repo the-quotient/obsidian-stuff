@@ -15,7 +15,6 @@
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Handle frontmatter
     if (!frontmatterEnded && line.trim() === "---") {
       inFrontmatter = !inFrontmatter;
       if (!inFrontmatter) frontmatterEnded = true;
@@ -28,7 +27,6 @@
       continue;
     }
 
-    // Handle code blocks
     if (line.trim().startsWith("```")) {
       inCode = !inCode;
       newLines.push(line);
@@ -41,7 +39,6 @@
       const isPlainList = /^\s*-\s+\S+/.test(line);
       const hasTODO = line.includes("TODO");
 
-      // Move unchecked tasks and plain list items (not TODO)
       if (
         ((isUnchecked && !hasTODO) || (isPlainList && !isUnchecked)) &&
         !isChecked
@@ -55,7 +52,6 @@
   }
 
 
-  // Use window.moment
   const today = window.moment().format("YYYY-MM-DD");
   const dailyPath = `daily/${today}.md`;
   const dailyFile = vault.getAbstractFileByPath(dailyPath);
